@@ -16,3 +16,12 @@ cd charts
 python3 main.py
 ll
 ```
+
+#  population of countries
+
+Genera graficas de pastel y de barras para ver la poblacion de diferentes paises/continentes. Dataset World Population:
+
+```sh
+cd app
+python3 main.py
+```
