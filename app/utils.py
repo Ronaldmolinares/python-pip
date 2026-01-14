@@ -1,73 +1,55 @@
-def filter_country(busqueda: str, data):
+import pandas as pd
+
+
+def filter_country(busqueda: str, df):
+    """
+    Filtra un país específico y retorna sus datos de población por año.
+    """
     try:
-        for country in data:
-            if country["Country/Territory"] == busqueda.title():
-                resultado = {
-                    "2022 Population": int(country["2022 Population"]),
-                    "2020 Population": int(country["2020 Population"]),
-                    "2015 Population": int(country["2015 Population"]),
-                    "2010 Population": int(country["2010 Population"]),
-                    "2000 Population": int(country["2000 Population"]),
-                    "1990 Population": int(country["1990 Population"]),
-                    "1980 Population": int(country["1980 Population"]),
-                }
+        country_data = df[df["Country/Territory"] == busqueda.title()]
+        
+        if country_data.empty:
+            return [], []
+        
+        population_columns = [
+            "2022 Population", "2020 Population", "2015 Population",
+            "2010 Population", "2000 Population", "1990 Population",
+            "1980 Population"
+        ]
+        
+        years = [col.split()[0] for col in population_columns]
+        values = country_data[population_columns].values[0].astype(int)
+        
+        return years, values
+    except Exception as e:
+        return [], []
 
-        return resultado.keys(), resultado.values()
-    except UnboundLocalError:
-        return "Error: pais no encontrado."
 
-
-def world_population_percentage(data):
-    labels = []
-    values = []
-    for country in data:
-        values.append(country["World Population Percentage"])
-        labels.append(country["Country/Territory"])
-
+def world_population_percentage(df):
+    """
+    Retorna los valores y labels de porcentaje de población mundial por país.
+    """
+    values = df["World Population Percentage"].tolist()
+    labels = df["Country/Territory"].tolist()
+    
     return values, labels
 
 
-def countries_with_population(data):
-    paises = list(map(lambda country: country["Country/Territory"], data))
-    porcentaje_poblacion = list(
-        map(lambda country: country["World Population Percentage"], data)
-    )
+def countries_with_population(df):
+    """
+    Retorna el porcentaje de población y nombres de países de un DataFrame filtrado.
+    """
+    porcentaje_poblacion = df["World Population Percentage"].tolist()
+    paises = df["Country/Territory"].tolist()
+    
     return porcentaje_poblacion, paises
 
 
-def continent_population_percentage(data):
-    dict_continent = {
-        "Asia": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "Asia"
-        ),
-        "Europe": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "Europe"
-        ),
-        "Africa": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "Africa"
-        ),
-        "Oceania": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "Oceania"
-        ),
-        "South America": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "South America"
-        ),
-        "North America": sum(
-            float(country["World Population Percentage"])
-            for country in data
-            if country["Continent"] == "North America"
-        ),
-    }
-
-    return dict_continent.keys(), dict_continent.values()
+def continent_population_percentage(df):
+    """
+    Calcula el porcentaje de población mundial por continente.
+    """
+    continent_data = df.groupby("Continent")["World Population Percentage"].sum()
+    
+    return continent_data.index.tolist(), continent_data.values.tolist()
 
