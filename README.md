@@ -23,5 +23,8 @@ Genera graficas de pastel y de barras para ver la poblacion de diferentes paises
 
 ```sh
 cd app
+python3 -m venv env
+source env/bin/activate
+pip3 install -r requirements.txt
 python3 main.py
 ```
